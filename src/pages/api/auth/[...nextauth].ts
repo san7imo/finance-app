@@ -3,7 +3,7 @@ import NextAuth, { NextAuthOptions } from "next-auth";
 import GithubProvider from "next-auth/providers/github";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import prisma from "@/lib/prisma";
-import { User as PrismaUser } from "@prisma/client"; // 👈 Importamos el tipo User real de la BD
+import { User as PrismaUser } from "@prisma/client";
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
@@ -15,23 +15,27 @@ export const authOptions: NextAuthOptions = {
   ],
   session: {
     strategy: "database",
+    maxAge: 30 * 24 * 60 * 60, // 30 días (opcional)
   },
   callbacks: {
+    // Agregamos información extra a session.user
     async session({ session, user }) {
       if (session.user) {
-        const dbUser = user as PrismaUser; // 👈 tipamos con el modelo real
+        const dbUser = user as PrismaUser;
         session.user.id = dbUser.id;
         session.user.role = dbUser.role;
         session.user.email = dbUser.email;
       }
       return session;
     },
+    // Hook de signIn para asignar rol si no existe
     async signIn({ user }) {
-      const dbUser = user as PrismaUser; // 👈 igual aquí
+      const dbUser = user as PrismaUser;
       try {
         const existing = await prisma.user.findUnique({
           where: { id: dbUser.id },
         });
+
         if (existing && !existing.role) {
           await prisma.user.update({
             where: { id: existing.id },
@@ -39,7 +43,7 @@ export const authOptions: NextAuthOptions = {
           });
         }
       } catch (err) {
-        console.error("signIn hook error:", err);
+        console.error("Error en signIn hook:", err);
       }
       return true;
     },

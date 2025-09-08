@@ -16,7 +16,7 @@ model User {
   id            String    @id @default(cuid())
   name          String?
   email         String    @unique @map("email")
-  phone         String?   // requerido en la vista de usuarios según requisito (puede ser null)
+  phone         String?
   emailVerified DateTime?
   image         String?
   role          Role      @default(ADMIN)

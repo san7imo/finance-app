@@ -1,4 +1,3 @@
-// schema.prisma
 generator client {
   provider = "prisma-client-js"
 }
@@ -14,16 +13,19 @@ enum Role {
 }
 
 model User {
-  id            String   @id @default(cuid())
+  id            String    @id @default(cuid())
   name          String?
-  email         String   @unique  @map("email")  // NOT NULL - Obligatorio, no puede ser null
+  email         String    @unique @map("email")
+  phone         String?   // requerido en la vista de usuarios según requisito (puede ser null)
   emailVerified DateTime?
   image         String?
-  role          Role     @default(ADMIN)
+  role          Role      @default(ADMIN)
 
   accounts      Account[]
   sessions      Session[]
   movements     Movement[]
+
+  @@map("users")
 }
 
 model Account {
@@ -43,6 +45,7 @@ model Account {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
+  @@map("accounts")
 }
 
 model Session {
@@ -52,6 +55,8 @@ model Session {
   expires      DateTime
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
 }
 
 model VerificationToken {
@@ -60,6 +65,7 @@ model VerificationToken {
   expires    DateTime
 
   @@unique([identifier, token])
+  @@map("verification_tokens")
 }
 
 model Movement {
@@ -70,4 +76,6 @@ model Movement {
   userId    String
 
   user User @relation(fields: [userId], references: [id])
+
+  @@map("movements")
 }

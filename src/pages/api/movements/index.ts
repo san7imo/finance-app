@@ -1,4 +1,4 @@
-// src/pages/api/movements/index.ts
+//src/pages/api/movements/index.ts
 import { NextApiRequest, NextApiResponse } from 'next';
 import { withUserAuth, withAdminAuth, AuthenticatedRequest } from '@/lib/middleware/auth';
 import { MovementsService } from '@/lib/services/movements.service';
